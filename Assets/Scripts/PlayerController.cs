@@ -4,13 +4,9 @@ public class PlayerController : MonoBehaviour
 {
     public float jumpForce;
     public int maxJumps;
-
-    private const float maxOrbRadius = 3;
-    private const float maxSpeed = 3;
-    private const float minSpeed = 0.01f;
-    private const float acceleration = 100;
-    private const float airAcceleration = 100;
-    private const float deceleration = 100;
+    public float acceleration;
+    public float airAcceleration;
+    public float maxSpeed;
 
     private bool jumpAxisDown = false;
     private bool canJump = false;
@@ -57,7 +53,8 @@ public class PlayerController : MonoBehaviour
             jumpAxisDown = false;
         }
 
-        if (Mathf.Abs(input.x) > 0)
+        if (Mathf.Abs(input.x) > 0 && 
+            ((Mathf.Abs(rb.velocity.x) < maxSpeed) || (Mathf.Sign(input.x) == -Mathf.Sign(rb.velocity.x))))
         {
             if (grounded)
             {
@@ -68,8 +65,6 @@ public class PlayerController : MonoBehaviour
                 rb.AddForce(new Vector2(input.x * airAcceleration, 0));
             }
         }
-
-        LimitVelocity();
     }
 
     // Update is called once per frame
@@ -101,8 +96,6 @@ public class PlayerController : MonoBehaviour
         {
             canJump = true;
         }
-
-        LimitVelocity();
     }
 
     private void LimitVelocity()
