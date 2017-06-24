@@ -1,0 +1,16 @@
+For each force exerted on the orb, an opposing force is exerted on the player.
+
+PC:
+WASD = move player
+Space = jump
+Arrow Keys / Mouse (plus left mouse button) = move orb
+Right Mouse Button = toggle orb movement mode (free-drag or auto-center)
+Hold Left Shift = focus mode
+
+
+XBox Controller:
+Left Stick = move player
+Click Left Stick = jump
+Right Stick = move orb
+Left Bumper = toggle orb movement mode (free-drag or auto-center)
+Hold Right Bumper = focus mode
