@@ -39,7 +39,6 @@ public class PlayerController : MonoBehaviour
     private float jumpForce = 0;
     private float sustainedJumpSpeed;
 
-    // Use this for initialization
     void Start()
     {
         // init private variables with public properties
@@ -61,7 +60,7 @@ public class PlayerController : MonoBehaviour
     {
         PollInput();
 
-        // Ingore platforms unless otherwise indicated
+        // Ignore platforms unless otherwise indicated
         ignoringPlatforms = true;
 
         HandleGrounding();

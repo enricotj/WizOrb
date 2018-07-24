@@ -53,7 +53,6 @@ public class OrbController : MonoBehaviour
     [Header("Prefabs")]
     public GameObject visibleOrb;
 
-    // Use this for initialization
     void Start()
     {
         player = GameObject.Find("Player");
@@ -99,50 +98,10 @@ public class OrbController : MonoBehaviour
             case OrbState.Hold:
                 break;
             default:
-                //rb.AddForce(springForce * (playerRB.position - rb.position).normalized);
                 rb.AddForce(force);
                 playerRB.AddForce(-force * 0.86f);
-                //if ((playerRB.position - rb.position).magnitude > DISTANCE - 0.03f)
-                //{
-                //    playerRB.AddForce(-force * 0.86f);
-                //}
-                //else if (force.magnitude > MAX_SYSTEM_ENERGY * 0.9f)
-                //{
-                //    playerRB.AddForce(-force);
-                //}
                 break;
         }
-    }
-    void OnCollisionEnter2D(Collision2D coll)
-    {
-        //bool isPlat = coll.gameObject.tag == "Platform";
-        //if ((coll.gameObject.tag == "Wall" || isPlat))
-        //{
-        //    Vector2 normal = Vector3.zero;
-        //    foreach (ContactPoint2D cp in coll.contacts)
-        //    {
-        //        normal += cp.normal;
-        //    }
-        //    normal /= coll.contacts.Length;
-        //    normal = normal.normalized;
-        //}
-    }
-
-    private void OnCollisionStay2D(Collision2D collision)
-    {
-        if ((collision.gameObject.tag == "Wall" || collision.gameObject.tag == "Platform") && 
-            state != OrbState.Hold)// && (playerRB.position - rb.position).magnitude <= DISTANCE - 0.03f)
-        {
-            //playerRB.AddForce(-force * 1.5f);
-        }
-    }
-
-    private void OnCollisionExit2D(Collision2D coll)
-    {
-        //if (coll.gameObject.tag == "Wall" || coll.gameObject.tag == "Platform")
-        //{
-        //    collisions--;
-        //}
     }
 
     private void GetInputs()
@@ -236,7 +195,6 @@ public class OrbController : MonoBehaviour
             // lerp the orb's position to be held by the player
             float playerVel = Mathf.Clamp(playerRB.velocity.magnitude, 0, player.GetComponent<PlayerController>().maxSpeed);
             rb.MovePosition(Vector2.Lerp(rb.position, playerRB.position + holdOffset + playerRB.velocity.normalized * 0.065f * playerVel, 0.4f));
-            //rb.MovePosition(Vector2.Lerp(rb.position, targetPosition, 0.4f));
 
             // ignore platforms when the player does
             ignorePlatforms = player.GetComponent<PlayerController>().ignoringPlatforms;
