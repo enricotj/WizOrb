@@ -1,0 +1,27 @@
+#################################
+KEYBOARD and/or MOUSE
+#################################
+WASD				Move Player Left/Right/Fall-Fast
+Hold Arrow Keys			Move/Direct Orb within Range
+Hold Left Mouse Button		Move/Direct Orb within Range towards Mouse
+Hold Lseft Shift		High-Friction Orb Mode
+Hold Left Alt			Drag Orb
+
+#################################
+GAME PAD (tested with xbox controller)
+#################################
+Left Stick			Move Player Left/Right/Fall-Faster
+Right Stick			Move/Direct Orb within Range
+Hold Left Bumper/Trigger	High-Friction Orb Mode
+Hold Right Bumper/Trigger	Drag Orb
+
+
+#################################
+TIPS AND TRICKS
+#################################
+ - Push orb DOWN against the ground to jump
+ - Push orb UP to reach through platforms and pull yourself up
+ - Use High-Friction Orb Mode to climb walls, it's a bit tricky though, start by moving the player towards the wall with the orb held diagonally upwards (also towards the wall)
+ - Drop through a platform while dragging the orb to hang from the platform
+ - Fast-falling with the orb held downwards will give you a slightly higher orb jump
+ - The orb will exert a force on the player as long as the orb is in contact with a wall/platform

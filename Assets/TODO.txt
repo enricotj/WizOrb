@@ -1,0 +1,18 @@
+  - Figure out how to transfer a particle effect from one object to another
+
+  MECHANICS
+  - Remove Double Jump (make it unlockable)
+  - Hold-Down to free the orb
+  - 
+ 
+  - Experiment with zero-friction hanging mode (make it a sliding mode?)
+  - Slide/Stick (which should be default? Toggle or hold?)
+  - Auto-Pull/Trail (Auto-Pull is the default. Toggle or hold?)
+  - Should stick be tied to auto-pull mode or should it be a separate button toggle?
+  - Keyboard accessibility should be kept in mind
+ 
+  - Design Combat/Enemies
+
+  - Ideally Suitable for Local VS Mode (up to 4 players)
+
+  - Design Game Type/Objective (Spelunky? Dust Force? Ori/Metroid?)

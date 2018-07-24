@@ -3,112 +3,216 @@ using UnityEngine;
 
 public class OrbController : MonoBehaviour
 {
+    private const float MAX_SYSTEM_ENERGY = 120;
+    private const float MIN_SYSTEM_ENERGY = 5f;
     private const float HOLD_RANGE = 0.5f;
-    private enum OrbState
+    private const float ORB_STICK = 1000f;
+    private const float DISTANCE = 4.5f;
+
+    public enum OrbState
     {
         Hold,
         Pull,
         Push
     }
-    private OrbState state = OrbState.Hold;
-    private bool colliding = false;
-    private float maxSpeed = 4f;
-    private float normalDotForce;
+    public OrbState state = OrbState.Hold;
+
+    // components and other objects
     private Rigidbody2D rb;
+    private CircleCollider2D circleCollider;
+    private Camera cam;
     private GameObject player;
     private Rigidbody2D playerRB;
-    private Camera cam;
+    private TrailRenderer trail;
+
+    private bool focusMode = false;
+    private bool oldAutoHold = true;
+    private bool autoHold = true;
+    private bool autoHoldToggle = true;
+    private bool stick = false;
+    private bool stickToggle = false;
+    public bool ignorePlatforms;
+    private float maxSpeed = 4f;
+    private float normalDotForce;
+    private float springForce = 0;
     private Vector2 inputDir;
     private Vector2 targetPosition;
     private Vector2 targetPositionDir;
     private Vector2 force;
     private Vector2 contactNormal;
-    private Dictionary<int, Vector2> contactNormals = new Dictionary<int, Vector2>();
+    private Vector2 holdOffset;
+    private Vector2 playerVector;
+    private Vector2 prevPosition;
 
-    private const float MAX_SYSTEM_ENERGY = 60f;
-    private const float MIN_SYSTEM_ENERGY = 5f;
+    private float trailDisableTimer = 0;
+    private float maxTrailTime;
+    private float trailScale = 1;
 
-    private bool focusMode = false;
-    private bool autoHold = false;
+    public float measurement = 0;
+
+    [Header("Prefabs")]
+    public GameObject visibleOrb;
 
     // Use this for initialization
     void Start()
     {
         player = GameObject.Find("Player");
         playerRB = player.GetComponent<Rigidbody2D>();
-        rb = this.GetComponent<Rigidbody2D>();
+        rb = GetComponent<Rigidbody2D>();
         cam = GameObject.Find("Main Camera").GetComponent<Camera>();
+        circleCollider = GetComponent<CircleCollider2D>();
+        trail = GetComponent<TrailRenderer>();
+        maxTrailTime = trail.time;
+
+        DistanceJoint2D distJoint = GetComponent<DistanceJoint2D>();
+        distJoint.connectedBody = playerRB;
+        distJoint.distance = DISTANCE;
+        distJoint.maxDistanceOnly = true;
+
+        GameObject visOrb = Instantiate(visibleOrb, transform.position, transform.rotation);
+        visOrb.GetComponent<Follow>().target = gameObject;
+        visOrb.GetComponent<Follow>().speed = 1;
+
+        holdOffset = Vector2.zero;
     }
 
     void Update()
     {
-        bool oldAutoHold = autoHold;
-        if (Input.GetButtonDown("Pull"))
+        GetInputs();
+
+        HandleOrbState();
+
+        springForce = 0;
+        float distToPlayer = (playerRB.position - rb.position).magnitude;
+        if (distToPlayer > DISTANCE)
         {
-            autoHold = !autoHold;
+            springForce = (distToPlayer - DISTANCE) * MAX_SYSTEM_ENERGY * 10;
         }
 
-        focusMode = Input.GetButton("Focus");
+        prevPosition = rb.position;
+    }
 
-        if (!autoHold && oldAutoHold)
+    void FixedUpdate()
+    {
+        switch (state)
+        {
+            case OrbState.Hold:
+                break;
+            default:
+                //rb.AddForce(springForce * (playerRB.position - rb.position).normalized);
+                rb.AddForce(force);
+                playerRB.AddForce(-force * 0.86f);
+                //if ((playerRB.position - rb.position).magnitude > DISTANCE - 0.03f)
+                //{
+                //    playerRB.AddForce(-force * 0.86f);
+                //}
+                //else if (force.magnitude > MAX_SYSTEM_ENERGY * 0.9f)
+                //{
+                //    playerRB.AddForce(-force);
+                //}
+                break;
+        }
+    }
+    void OnCollisionEnter2D(Collision2D coll)
+    {
+        //bool isPlat = coll.gameObject.tag == "Platform";
+        //if ((coll.gameObject.tag == "Wall" || isPlat))
+        //{
+        //    Vector2 normal = Vector3.zero;
+        //    foreach (ContactPoint2D cp in coll.contacts)
+        //    {
+        //        normal += cp.normal;
+        //    }
+        //    normal /= coll.contacts.Length;
+        //    normal = normal.normalized;
+        //}
+    }
+
+    private void OnCollisionStay2D(Collision2D collision)
+    {
+        if ((collision.gameObject.tag == "Wall" || collision.gameObject.tag == "Platform") && 
+            state != OrbState.Hold)// && (playerRB.position - rb.position).magnitude <= DISTANCE - 0.03f)
+        {
+            //playerRB.AddForce(-force * 1.5f);
+        }
+    }
+
+    private void OnCollisionExit2D(Collision2D coll)
+    {
+        //if (coll.gameObject.tag == "Wall" || coll.gameObject.tag == "Platform")
+        //{
+        //    collisions--;
+        //}
+    }
+
+    private void GetInputs()
+    {
+        oldAutoHold = autoHold;
+        if (Input.GetButtonDown("DragButton"))
+        {
+            autoHoldToggle = !autoHoldToggle;
+        }
+        autoHold = (Input.GetAxis("Drag") > 0 || Input.GetButton("DragAlt")) ?
+            !autoHoldToggle : autoHoldToggle;
+
+        if (Input.GetButtonDown("StickButton"))
+        {
+            stickToggle = !stickToggle;
+        }
+        stick = (Input.GetAxis("Stick") > 0 || Input.GetButton("StickShift")) ? 
+            !stickToggle : stickToggle;
+        
+        inputDir = (new Vector2(Input.GetAxis("Horizontal2"), Input.GetAxis("Vertical2"))).normalized;
+
+        if (autoHold && !oldAutoHold)
         {
             state = OrbState.Push;
         }
 
-        inputDir = (new Vector2(Input.GetAxis("Horizontal2"), Input.GetAxis("Vertical2"))).normalized;
         if (Input.GetMouseButton(0))
         {
-            Vector2 positionOnScreen = cam.GetComponent<Camera>().WorldToViewportPoint(player.transform.position);
-            if (focusMode)
-            {
-                positionOnScreen = cam.GetComponent<Camera>().WorldToViewportPoint(this.transform.position);
-            }
-            Vector2 mouseOnScreen = cam.GetComponent<Camera>().ScreenToViewportPoint(Input.mousePosition);
-            inputDir = (mouseOnScreen - positionOnScreen).normalized;
+            Vector2 pos = focusMode ? rb.position : playerRB.position;
+            Vector2 mouseInWorld = cam.GetComponent<Camera>().ScreenToWorldPoint(Input.mousePosition);
+            inputDir = (mouseInWorld - pos).normalized;
         }
+    }
 
-        if (inputDir != Vector2.zero || !autoHold || focusMode)
+    private void HandleOrbState()
+    {
+        if (inputDir != Vector2.zero || focusMode || !autoHold)
         {
             state = OrbState.Push;
             targetPosition = rb.position + (inputDir * 5);
-            Debug.DrawLine(rb.position, rb.position + inputDir * 5, Color.white);
         }
-        else if (((rb.position - playerRB.position).magnitude > HOLD_RANGE) && (state != OrbState.Hold))
+        else if ((rb.position - playerRB.position).magnitude > HOLD_RANGE && state != OrbState.Hold && state != OrbState.Pull)
         {
             state = OrbState.Pull;
             targetPosition = playerRB.position;
-            Debug.DrawLine(rb.position, targetPosition, Color.green);
         }
-        else if (((rb.position - playerRB.position).magnitude <= HOLD_RANGE) && (state == OrbState.Pull))
+        else if (state == OrbState.Pull)
         {
-            state = OrbState.Hold;
+            targetPosition = playerRB.position;
+            float dist = (targetPosition - rb.position).magnitude;
+            if (dist <= (HOLD_RANGE * 3))
+            {
+                if (dist <= HOLD_RANGE || CheckLineSegmentAgainstCircle(prevPosition, rb.position, playerRB.position, HOLD_RANGE/2))
+                {
+                    state = OrbState.Hold;
+                    rb.velocity = Vector2.zero;
+                    SetFriction(0);
+                }
+                else
+                {
+                    rb.velocity = (targetPosition - rb.position).normalized * (rb.velocity.magnitude * 0.5f);
+                }
+            }
+        }
+        else if (state == OrbState.Hold)
+        {
+            targetPosition = playerRB.position;
             rb.velocity = Vector2.zero;
         }
-        else
-        {
-            targetPosition = rb.position;
-        }
         targetPositionDir = (targetPosition - rb.position).normalized;
-
-        // Calculate average normal vector of all contact points
-        int numContacts = contactNormals.Keys.Count;
-        contactNormal = Vector2.zero;
-        if (numContacts > 0)
-        {
-            colliding = true;
-            foreach (int id in contactNormals.Keys)
-            {
-                contactNormal += contactNormals[id];
-            }
-            contactNormal /= numContacts;
-            contactNormal.Normalize();
-        }
-        else
-        {
-            colliding = false;
-        }
-        
-        //normalDotForce = Vector2.Dot(contactNormal, targetPositionDir);
 
         if (targetPositionDir != Vector2.zero)
         {
@@ -119,72 +223,68 @@ public class OrbController : MonoBehaviour
             force = Vector2.zero;
         }
 
-        // Debug lines
-        Debug.DrawLine(rb.position, rb.position + contactNormal, Color.red);
-        Debug.DrawLine(rb.position, rb.position + targetPositionDir, Color.cyan);
-
-        if (state == OrbState.Hold)
-        {
-            rb.MovePosition(Vector2.Lerp(rb.position, playerRB.position, 0.5f));
-        }
-
+        // clamp focus mode velocity
         if (focusMode && rb.velocity.magnitude > maxSpeed)
         {
             rb.velocity = rb.velocity.normalized * maxSpeed;
         }
-    }
 
-    void FixedUpdate()
-    {
-        //if (Input.GetAxis("Pull") > 0)
-        //{
-        //    targetPositionDir = playerRB.position - rb.position;
-        //    if (targetPositionDir.magnitude <= maxSpeed * Time.deltaTime)
-        //    {
-        //        rb.velocity = Vector2.zero;
-        //        rb.MovePosition(playerRB.position);
-        //    }
-        //    else
-        //    {
-        //        rb.velocity = targetPositionDir.normalized * maxSpeed;
-        //    }
-        //    targetPositionDir.Normalize();
-        //}
+        if (state == OrbState.Hold)
+        {
+            holdOffset.x = Mathf.Sin(Time.time * 4f) * 0.15f;
+            holdOffset.y = Mathf.Cos(Time.time * 2f) * 0.15f;
+            // lerp the orb's position to be held by the player
+            float playerVel = Mathf.Clamp(playerRB.velocity.magnitude, 0, player.GetComponent<PlayerController>().maxSpeed);
+            rb.MovePosition(Vector2.Lerp(rb.position, playerRB.position + holdOffset + playerRB.velocity.normalized * 0.065f * playerVel, 0.4f));
+            //rb.MovePosition(Vector2.Lerp(rb.position, targetPosition, 0.4f));
 
+            // ignore platforms when the player does
+            ignorePlatforms = player.GetComponent<PlayerController>().ignoringPlatforms;
+        }
+        else
+        {
+            // detect platforms, ignore them if the orb is moving upwards
+            float gcf = Mathf.Clamp(Mathf.Abs(rb.velocity.y) * Time.deltaTime, 1f, 50f);
+            Vector2 gcSize = Vector2.right * 0.15f + Vector2.up * gcf;
+            Vector2 gcOrigin = rb.position + Vector2.down * 0.05f + Vector2.down * gcf * 0.5f;
+            int gcLayerMask = LayerMask.GetMask("Platform");
+            RaycastHit2D groundCheck = Physics2D.BoxCast(gcOrigin, gcSize, 0, Vector2.zero, 0, gcLayerMask, 0);
+            ignorePlatforms = rb.velocity.y > 0f && !groundCheck;
+        }
 
-        switch (state)
+        if (stick && state != OrbState.Hold)
+        {
+            SetFriction(ORB_STICK);
+        }
+        else
+        {
+            SetFriction(0);
+        }
+
+        trail.material.color = stick ? Color.magenta : Color.cyan;
+
+        Physics2D.IgnoreLayerCollision(10, 11, ignorePlatforms);
+
+        switch(state)
         {
             case OrbState.Hold:
+                Timer.Increment(ref trailScale);
+                trail.time = trail.time * trailScale / 2;
                 break;
             default:
-                rb.AddForce(force);
-                playerRB.AddForce(force * -0.8f);
+                trailScale = 2;
+                trail.time = maxTrailTime;
                 break;
         }
     }
-    void OnCollisionEnter2D(Collision2D coll)
-    {
-        int id = coll.gameObject.GetInstanceID();
-        if (coll.gameObject.tag == "Wall" && !contactNormals.ContainsKey(id))
-        {
-            Vector2 normal = Vector3.zero;
-            foreach (ContactPoint2D cp in coll.contacts)
-            {
-                normal += cp.normal;
-            }
-            normal /= coll.contacts.Length;
-            normal = normal.normalized;
 
-            contactNormals.Add(id, normal);
-        }
-    }
-
-    private void OnCollisionExit2D(Collision2D coll)
+    private void SetFriction(float f)
     {
-        int id = coll.gameObject.GetInstanceID();
-        if (coll.gameObject.tag == "Wall" && contactNormals.ContainsKey(id))
+        if (circleCollider.sharedMaterial.friction != f)
         {
-            contactNormals.Remove(id);
+            circleCollider.sharedMaterial.friction = f;
+            circleCollider.enabled = false;
+            circleCollider.enabled = true;
         }
     }
 
@@ -211,5 +311,36 @@ public class OrbController : MonoBehaviour
 
         Vector2 finalOrbForce = targetPositionDir * (nextVelocity - orbVelocity) * orbMass / Time.fixedDeltaTime;
         return finalOrbForce;
+    }
+
+    private void OnApplicationQuit()
+    {
+        circleCollider.sharedMaterial.friction = ORB_STICK;
+    }
+
+    private bool CheckLineSegmentAgainstCircle(Vector2 p1, Vector2 p2, Vector2 cen, float r)
+    {
+        float x1 = p1.x;
+        float y1 = p1.y;
+        float x2 = p2.x;
+        float y2 = p2.y;
+        float cx = cen.x;
+        float cy = cen.y;
+        x1 -= cx;
+        y1 -= cy;
+        x2 -= cx;
+        y2 -= cy;
+        float a = Mathf.Pow(x1, 2) + Mathf.Pow(x2, 2) - Mathf.Pow(r, 2);
+        float b = 2*(x1*(x2 - x1) + y1*(y2 - y1));
+        float c = Mathf.Pow((x2 - x1), 2) + Mathf.Pow((y2 - y1), 2);
+        float disc = Mathf.Pow(b, 2) - 4*a*c;
+        if(disc <= 0)
+        {
+            return false;
+        }
+        float sqrtdisc = Mathf.Sqrt(disc);
+        float t1 = (-b + sqrtdisc)/(2*a);
+        float t2 = (-b - sqrtdisc)/(2*a);
+        return ((0 < t1 && t1 < 1) || (0 < t2 && t2 < 1));
     }
 }

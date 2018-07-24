@@ -7,10 +7,16 @@ public class Follow : MonoBehaviour {
     public GameObject target;
     [Range(0, 1)]
     public float speed;
+    public bool ignoreZ = false;
 	
 	// Update is called once per frame
-	void Update ()
+	void LateUpdate ()
     {
-        this.transform.position = Vector3.Lerp(this.transform.position, target.transform.position, 0.5f);
+        Vector3 pos = target.transform.position;
+        if (ignoreZ)
+        {
+            pos.z = this.transform.position.z;
+        }
+        this.transform.position = Vector3.Lerp(this.transform.position, pos, speed);
 	}
 }
