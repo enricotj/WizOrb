@@ -1,18 +1,32 @@
-  - Figure out how to transfer a particle effect from one object to another
+SKILLS:
+-Fast Fall
+-Grappling Ability (Sticky Orb)
+-Orb Endurance (3/4/5 seconds)
+-Orb Speed/Power (60/80/120)
+-Charge (up to 200 energy)
+-
 
-  MECHANICS
-  - Remove Double Jump (make it unlockable)
-  - Hold-Down to free the orb
-  - 
- 
-  - Experiment with zero-friction hanging mode (make it a sliding mode?)
-  - Slide/Stick (which should be default? Toggle or hold?)
-  - Auto-Pull/Trail (Auto-Pull is the default. Toggle or hold?)
-  - Should stick be tied to auto-pull mode or should it be a separate button toggle?
-  - Keyboard accessibility should be kept in mind
- 
-  - Design Combat/Enemies
+MECHANICS
+-Hold Down to reset Orb in hold position
+-Stick Mode should actually grapple/gravitate towards walls
+-Charge Orb
+-Orb can only be held out a certain amount of time (recharged by holding)
+  -If you "Burn-out" then the orb briefly winks out of existance (for about 1 second)
+-Need a way to prevent orb attack spamming
+-What counts as a hit???
+  -cannot hit same enemy again until orb moves x-distance away or x-amount of time has passed (during which time it is in a defensive position)
 
-  - Ideally Suitable for Local VS Mode (up to 4 players)
+INTERACTIVE OBJECTS
+-Torch
+-Partially Crumbled Wall
+-Hard Wood Barrier
 
-  - Design Game Type/Objective (Spelunky? Dust Force? Ori/Metroid?)
+ENEMY PROPERTIES:
+-Jumping
+-Climbing
+-Shooting
+-Flying
+-Diving/Charging
+-Blocking
+-Weak-Spot
+-Trippable
