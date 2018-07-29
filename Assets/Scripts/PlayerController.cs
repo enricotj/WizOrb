@@ -70,8 +70,7 @@ public class PlayerController : MonoBehaviour
 
     private void ApplyHorizontalMovementForce()
     {
-        if (Mathf.Abs(input.x) > 0 &&
-            ((Mathf.Abs(rb.velocity.x) < maxSpeed) || (Mathf.Sign(input.x) == -Mathf.Sign(rb.velocity.x))))
+        if (Mathf.Abs(input.x) > 0)// && (Mathf.Sign(input.x) == -Mathf.Sign(rb.velocity.x)))
         {
             if (grounded)
             {
@@ -82,6 +81,8 @@ public class PlayerController : MonoBehaviour
                 rb.AddForce(Vector2.right * input.x * airAccel);
             }
         }
+
+        SetVX(Mathf.Clamp(rb.velocity.x, -maxSpeed, maxSpeed));
     }
 
     private void ApplyJumpingForce()

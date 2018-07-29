@@ -96,12 +96,36 @@ public class OrbController : MonoBehaviour
         switch (state)
         {
             case OrbState.Hold:
+                targetPosition = playerRB.position;
+                rb.velocity = Vector2.zero;
+                holdOffset.x = Mathf.Sin(Time.time * 4f) * 0.15f;
+                holdOffset.y = Mathf.Cos(Time.time * 2f) * 0.15f;
+                float playerVel = Mathf.Clamp(playerRB.velocity.magnitude, 0, player.GetComponent<PlayerController>().maxSpeed);
+                rb.MovePosition(playerRB.position + holdOffset + playerRB.velocity.normalized * 0.001f * playerVel);
+                ignorePlatforms = player.GetComponent<PlayerController>().ignoringPlatforms;
                 break;
             default:
                 rb.AddForce(force);
                 playerRB.AddForce(-force * 0.86f);
                 break;
         }
+        
+        if (stick && state != OrbState.Hold)
+        {
+            SetFriction(ORB_STICK);
+        }
+        else
+        {
+            SetFriction(0);
+        }
+
+        // clamp focus mode velocity
+        if (focusMode && rb.velocity.magnitude > maxSpeed)
+        {
+            rb.velocity = rb.velocity.normalized * maxSpeed;
+        }
+
+        Physics2D.IgnoreLayerCollision(10, 11, ignorePlatforms);
     }
 
     private void GetInputs()
@@ -157,8 +181,6 @@ public class OrbController : MonoBehaviour
                 if (dist <= HOLD_RANGE || CheckLineSegmentAgainstCircle(prevPosition, rb.position, playerRB.position, HOLD_RANGE/2))
                 {
                     state = OrbState.Hold;
-                    rb.velocity = Vector2.zero;
-                    SetFriction(0);
                 }
                 else
                 {
@@ -169,7 +191,6 @@ public class OrbController : MonoBehaviour
         else if (state == OrbState.Hold)
         {
             targetPosition = playerRB.position;
-            rb.velocity = Vector2.zero;
         }
         targetPositionDir = (targetPosition - rb.position).normalized;
 
@@ -182,24 +203,7 @@ public class OrbController : MonoBehaviour
             force = Vector2.zero;
         }
 
-        // clamp focus mode velocity
-        if (focusMode && rb.velocity.magnitude > maxSpeed)
-        {
-            rb.velocity = rb.velocity.normalized * maxSpeed;
-        }
-
-        if (state == OrbState.Hold)
-        {
-            holdOffset.x = Mathf.Sin(Time.time * 4f) * 0.15f;
-            holdOffset.y = Mathf.Cos(Time.time * 2f) * 0.15f;
-            // lerp the orb's position to be held by the player
-            float playerVel = Mathf.Clamp(playerRB.velocity.magnitude, 0, player.GetComponent<PlayerController>().maxSpeed);
-            rb.MovePosition(Vector2.Lerp(rb.position, playerRB.position + holdOffset + playerRB.velocity.normalized * 0.065f * playerVel, 0.4f));
-
-            // ignore platforms when the player does
-            ignorePlatforms = player.GetComponent<PlayerController>().ignoringPlatforms;
-        }
-        else
+        if (state != OrbState.Hold)
         {
             // detect platforms, ignore them if the orb is moving upwards
             float gcf = Mathf.Clamp(Mathf.Abs(rb.velocity.y) * Time.deltaTime, 1f, 50f);
@@ -210,18 +214,7 @@ public class OrbController : MonoBehaviour
             ignorePlatforms = rb.velocity.y > 0f && !groundCheck;
         }
 
-        if (stick && state != OrbState.Hold)
-        {
-            SetFriction(ORB_STICK);
-        }
-        else
-        {
-            SetFriction(0);
-        }
-
         trail.material.color = stick ? Color.magenta : Color.cyan;
-
-        Physics2D.IgnoreLayerCollision(10, 11, ignorePlatforms);
 
         switch(state)
         {
