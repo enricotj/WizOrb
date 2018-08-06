@@ -31,8 +31,8 @@ public class PlayerController : MonoBehaviour
     private Vector2 prevInput;
     private bool tryJump = false;
     private bool jumpAxisDown = false;
-    private bool fastFall = false;
-    private bool grounded = false;
+    public bool fastFall = false;
+    public bool grounded = false;
     private int jumps = 1;
     private float sustainedJumpTimer;
     private float platformDropTimer = 0;

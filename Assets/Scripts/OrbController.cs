@@ -131,12 +131,6 @@ public class OrbController : MonoBehaviour
     private void GetInputs()
     {
         oldAutoHold = autoHold;
-        if (Input.GetButtonDown("DragButton"))
-        {
-            autoHoldToggle = !autoHoldToggle;
-        }
-        autoHold = (Input.GetAxis("Drag") > 0 || Input.GetButton("DragAlt")) ?
-            !autoHoldToggle : autoHoldToggle;
 
         if (Input.GetButtonDown("StickButton"))
         {
@@ -146,6 +140,10 @@ public class OrbController : MonoBehaviour
             !stickToggle : stickToggle;
         
         inputDir = (new Vector2(Input.GetAxis("Horizontal2"), Input.GetAxis("Vertical2"))).normalized;
+
+        Vector2 playerInput = Vector2.right * Input.GetAxis("Horizontal") + Vector2.up * Input.GetAxis("Vertical");
+
+        autoHold = !(!player.GetComponent<PlayerController>().grounded && (playerInput.y <= -0.1f && (inputDir != Vector2.zero || !autoHold)));
 
         if (autoHold && !oldAutoHold)
         {

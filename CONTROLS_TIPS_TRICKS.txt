@@ -1,27 +1,54 @@
-#################################
+######################################
 KEYBOARD and/or MOUSE
-#################################
-WASD				Move Player Left/Right/Fall-Fast
-Hold Arrow Keys			Move/Direct Orb within Range
-Hold Left Mouse Button		Move/Direct Orb within Range towards Mouse
-Hold Lseft Shift		High-Friction Orb Mode
-Hold Left Alt			Drag Orb
+######################################
+WASD						Move Player Left/Right/Fastfall
+Hold Arrow Keys				Push Orb outwards to Max Range
+Hold Left Mouse Button		Push Orb outwards to Max Range towards Mouse
+Hold Left Shift				High-Friction Orb Mode
 
-#################################
+######################################
 GAME PAD (tested with xbox controller)
-#################################
-Left Stick			Move Player Left/Right/Fall-Faster
-Right Stick			Move/Direct Orb within Range
+######################################
+Left Stick					Move Player Left/Right/Fastfall
+Right Stick					Move/Direct Orb within Range
 Hold Left Bumper/Trigger	High-Friction Orb Mode
-Hold Right Bumper/Trigger	Drag Orb
 
 
-#################################
-TIPS AND TRICKS
-#################################
+######################################
+BASIC MANEUVERS
+######################################
  - Push orb DOWN against the ground to jump
  - Push orb UP to reach through platforms and pull yourself up
- - Use High-Friction Orb Mode to climb walls, it's a bit tricky though, start by moving the player towards the wall with the orb held diagonally upwards (also towards the wall)
  - Drop through a platform while dragging the orb to hang from the platform
  - Fast-falling with the orb held downwards will give you a slightly higher orb jump
- - The orb will exert a force on the player as long as the orb is in contact with a wall/platform
+ 
+######################################
+ADVANCED MANEUVERS
+######################################
+ - The orb will exert a force on the player as long as the orb is in contact with a wall/platform. So hanging from a platform with the orb and then pressing/holding down will launch you much higher than usual!
+
+ - Use High-Friction Orb Mode to climb walls, it's a bit tricky though, start by moving the player towards the wall with the orb held diagonally upwards (also towards the wall). Really terrible diagram of the process:
+	   |
+	   |
+	  O|(press in with high-friction)
+	   |
+	 []|{press in}
+
+	   |
+	   |
+	[]O|(press down/in while holding high-friction)
+	   |{continue holding in with player}
+	   |
+
+	   |
+	   |
+	 []|(press in)
+	   |
+	  O|(swing orb above player, repeat process... or continue holding in with both to hover)
+
+ - High-Friction Orb Mode can also be used to catapult yourself along the ground. Example: Hold the orb right, move the player right, enable high-friction, and perform a half-circle-down with the orb controls, releasing high-friction mode towards the end helps so you don't pull yourself back on accident.
+
+ 	Keyboard example of a half-circle-down:
+ 	-->		V	<--
+
+ - Hold DOWN for the player after pushing out the orb in the air to prevent the orb from automatically recentering on the player after letting go of the arrow keys or right-stick. This is useful for sliding down a slope with the player below the ground/platform, and the orb above (like a zipline). It's also fun to just Fast-Fall through platforms like this and let the orb catch the platform and spring you back up into the air!

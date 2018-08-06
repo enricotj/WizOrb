@@ -3,11 +3,11 @@ SKILLS:
 -Grappling Ability (Sticky Orb)
 -Orb Endurance (3/4/5 seconds)
 -Orb Speed/Power (60/80/120)
+-Orb Range (3/4/5/6)
 -Charge (up to 200 energy)
--
 
 MECHANICS
--Hold Down to reset Orb in hold position
+-Hold Space/LStick-Button to reset Orb in hold position
 -Stick Mode should actually grapple/gravitate towards walls
 -Charge Orb
 -Orb can only be held out a certain amount of time (recharged by holding)
